@@ -1,0 +1,48 @@
+# Deploy the pods
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: sosial-media-master-deployment
+spec:
+  selector:
+    matchLabels:
+      app: sosial-media-master
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: sosial-media-master
+    spec:
+      containers: 
+      - name: sosial-media-master
+        image: indraraspati/pesbuk:secret
+        ports:
+        - containerPort: 80
+        env:
+          - name: DB_HOST
+            value: "dbindra.cqu5tkaflaxo.ap-southeast-1.rds.amazonaws.com"
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: p-secret-fb
+                key: DB_USER
+          - name: DB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: p-secret-fb
+                key: DB_PASS
+---
+# This service is used to expose the pods on a port
+apiVersion: v1
+kind: Service
+metadata:
+  name: sosial-media-master-service
+spec:
+  type: NodePort
+  selector:
+    app: sosial-media-master
+  ports:
+    - port: 80
+      protocol: TCP
+---
+~                          
